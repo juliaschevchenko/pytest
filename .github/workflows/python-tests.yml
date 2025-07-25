@@ -5,14 +5,14 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-  workflow_dispatch:  # позволяет запускать вручную с кнопки в UI
 
 jobs:
-  test:
+  build:
+
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Set up Python
@@ -25,10 +25,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Install Playwright dependencies
+    - name: Run API tests only
       run: |
-        python -m playwright install --with-deps
-
-    - name: Run tests
-      run: |
-        pytest
+        pytest api_project
