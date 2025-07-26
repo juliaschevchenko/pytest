@@ -1,6 +1,9 @@
 name: API Tests
 
 on:
+  schedule:
+    - cron: '0 1 * * *'  # 1:00 UTC = 4:00 по МСК
+  workflow_dispatch:     # для ручного запуска
   push:
     branches: [ master ]
   pull_request:
