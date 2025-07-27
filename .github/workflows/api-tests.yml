@@ -43,9 +43,8 @@ jobs:
           ICON="❌"
         fi
 
-        REPORT_URL="https://juliaschevchenko.github.io/${{github.repository}}/"
+        REPORT_URL="https://juliaschevchenko.github.io/${{github.repository}}/allure-report/index.html"
         curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
           -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
           -d text="${ICON} Job *${{ github.job }}* completed with status: *${STATUS}* in repo [${{ github.repository }}](${{ github.server_url }}/${{ github.repository }}). [Open Allure report](${REPORT_URL})" \
           -d parse_mode=Markdown
-
