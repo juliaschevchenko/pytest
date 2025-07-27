@@ -4,8 +4,8 @@ on:
   schedule:
     - cron: '15 1 * * *'  # 1:15 UTC = 4:15 по МСК
   workflow_dispatch:     # для ручного запуска
-  # push:
-  #   branches: [ master ]
+  push:
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
