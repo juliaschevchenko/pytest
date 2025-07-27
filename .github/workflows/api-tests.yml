@@ -43,8 +43,27 @@ jobs:
           ICON="❌"
         fi
 
-        REPORT_URL="https://juliaschevchenko.github.io/${{github.repository}}/allure-report/index.html"
+        REPORT_URL="https://juliaschevchenko.github.io/pytest/allure-report/index.html"
         curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
           -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
           -d text="${ICON} Job *${{ github.job }}* completed with status: *${STATUS}* in repo [${{ github.repository }}](${{ github.server_url }}/${{ github.repository }}). [Open Allure report](${REPORT_URL})" \
           -d parse_mode=Markdown
+
+    - name: Generate Allure report
+      run: |
+        allure generate allure-results -o allure-report --clean
+
+    - name: Deploy Allure report to GitHub Pages
+      if: always()
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        git clone --depth 1 --branch gh-pages https://github.com/${{ github.repository }} gh-pages
+        rm -rf gh-pages/allure-report
+        cp -r allure-report gh-pages/
+        cd gh-pages
+        git add allure-report
+        git commit -m "Update Allure report 🚀" || echo "No changes to commit"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
