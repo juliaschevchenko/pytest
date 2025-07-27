@@ -33,22 +33,15 @@ jobs:
       run: |
         pytest api_project --alluredir=allure-results
 
-    - name: Send Telegram message
-      if: always()  # всегда выполняется
+    - name: Install Allure CLI
       run: |
-        STATUS=${{ job.status }}
-        if [[ "$STATUS" == "success" ]]; then
-          ICON="✅"
-        else
-          ICON="❌"
-        fi
-
-        REPORT_URL="https://juliaschevchenko.github.io/pytest/allure-report/index.html"
-        curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-          -d text="${ICON} Job *${{ github.job }}* completed with status: *${STATUS}* in repo [${{ github.repository }}](${{ github.server_url }}/${{ github.repository }}). [Open Allure report](${REPORT_URL})" \
-          -d parse_mode=Markdown
-
+        sudo apt update
+        sudo apt install -y default-jre
+        wget https://github.com/allure-framework/allure2/releases/latest/download/allure-2.24.0.tgz
+        tar -zxvf allure-2.34.1.tgz
+        sudo mv allure-2.34.1 /opt/allure
+        sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+          
     - name: Generate Allure report
       run: |
         allure generate allure-results -o allure-report --clean
@@ -67,3 +60,19 @@ jobs:
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Send Telegram message
+      if: always()  # всегда выполняется
+      run: |
+        STATUS=${{ job.status }}
+        if [[ "$STATUS" == "success" ]]; then
+          ICON="✅"
+        else
+          ICON="❌"
+        fi
+
+        REPORT_URL="https://juliaschevchenko.github.io/pytest/allure-report/index.html"
+        curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d text="${ICON} Job *${{ github.job }}* completed with status: *${STATUS}* in repo [${{ github.repository }}](${{ github.server_url }}/${{ github.repository }}). [Open Allure report](${REPORT_URL})" \
+          -d parse_mode=Markdown
