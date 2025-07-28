@@ -42,6 +42,9 @@ jobs:
         sudo mv allure-2.34.1 /opt/allure
         sudo ln -s /opt/allure/bin/allure /usr/bin/allure
           
+    - name: Clean up old report
+      run: rm -rf allure-report
+
     - name: Generate Allure report
       run: |
         allure generate allure-results -o allure-report --clean
@@ -55,10 +58,13 @@ jobs:
         git clone --depth 1 --branch gh-pages https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} gh-pages
 
         rm -rf gh-pages/allure-report
-        cp -r allure-report gh-pages/
+        cp -r allure-report gh-pages/allure-report
+
+        # <== ДОБАВЬ: timestamp, чтобы git видел изменение
+        date > gh-pages/allure-report/generated.txt
 
         cd gh-pages
-        git add allure-report
+        git add .
         git commit -m "Update Allure report 🚀" || echo "No changes to commit"
         git push
 
