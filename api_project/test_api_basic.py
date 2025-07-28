@@ -1,6 +1,7 @@
 import requests
 import pytest
 
+@allure.title("Получение списка пользователей")
 def test_get_users(base_url, headers):
     response = requests.get(f"{base_url}/users?page=2", headers=headers)
     assert response.status_code == 200
@@ -8,6 +9,7 @@ def test_get_users(base_url, headers):
     assert 'data' in data
     assert isinstance(data["data"], list)
 
+@allure.title("Создание пользователя")
 def test_create_user(base_url, headers):
 
     payload = {
@@ -24,6 +26,7 @@ def test_create_user(base_url, headers):
     assert "id" in data
     assert "createdAt" in data
 
+@allure.title("Обновление пользователя")
 def test_update_user(base_url, headers):
     payload = {
         "name": "Юля",
@@ -38,21 +41,25 @@ def test_update_user(base_url, headers):
     assert data["job"] == "Lead QA"
     assert "updatedAt" in data
 
-# def test_delete_user(base_url, headers):
-#     response = requests.delete(f"{base_url}/users/2", headers=headers)
-#     assert response.status_code == 204  # Нет содержимого, но успешно
+@allure.title("Удаление пользователя")
+def test_delete_user(base_url, headers):
+    response = requests.delete(f"{base_url}/users/2", headers=headers)
+    assert response.status_code == 204  # Нет содержимого, но успешно
 
-# @pytest.mark.xfail(reason="баг на стороне API")
-# def test_create_user_without_body(base_url, headers):
-#     response = requests.post(f"{base_url}/users", headers=headers)
-#     assert response.status_code == 400 or response.status_code == 415  # зависит от API
+@allure.title("Попытка создания пользователя без тела")
+@pytest.mark.xfail(reason="баг на стороне API")
+def test_create_user_without_body(base_url, headers):
+    response = requests.post(f"{base_url}/users", headers=headers)
+    assert response.status_code == 400 or response.status_code == 415  # зависит от API
 
-# def test_get_nonexistent_resource(base_url, headers):
-#     response = requests.get(f"{base_url}/unknown/999", headers=headers)
-#     assert response.status_code == 404
+@allure.title("Обращение к несуществующему ресурсу")
+def test_get_nonexistent_resource(base_url, headers):
+    response = requests.get(f"{base_url}/unknown/999", headers=headers)
+    assert response.status_code == 404
 
-# @pytest.mark.xfail(reason="reqres.in может возвращать 200 с некорректным API-ключом")
-# def test_with_invalid_api_key(base_url):
-#     headers = {"x-api-key": "invalid-key"}
-#     response = requests.get(f"{base_url}/users/2", headers=headers)
-#     assert response.status_code == 401
+@allure.title("Невлидный ключ доступа")
+@pytest.mark.xfail(reason="reqres.in может возвращать 200 с некорректным API-ключом")
+def test_with_invalid_api_key(base_url):
+    headers = {"x-api-key": "invalid-key"}
+    response = requests.get(f"{base_url}/users/2", headers=headers)
+    assert response.status_code == 401
