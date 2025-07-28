@@ -1,4 +1,4 @@
-name: API Tests
+name: Tests
 
 on:
   schedule:
@@ -32,14 +32,10 @@ jobs:
       run: |
         python -m playwright install --with-deps
 
-    - name: Run UI tests
-      run: |
-        pytest login_project
-
-    - name: Run API tests
+    - name: Run tests
       run: |
         rm -rf allure-results allure-report
-        pytest api_project --alluredir=allure-results
+        pytest --alluredir=allure-results
 
     - name: Install Allure CLI
       run: |
