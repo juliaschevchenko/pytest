@@ -1,5 +1,6 @@
 import requests
 import pytest
+import allure
 
 @allure.title("Получение списка пользователей")
 def test_get_users(base_url, headers):
