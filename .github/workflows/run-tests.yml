@@ -28,7 +28,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run API tests only
+    - name: Install Playwright browsers
+      run: |
+        python -m playwright install --with-deps
+
+    - name: Run UI tests
+      run: |
+        pytest login_project
+
+    - name: Run API tests
       run: |
         rm -rf allure-results allure-report
         pytest api_project --alluredir=allure-results
