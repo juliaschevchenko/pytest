@@ -39,6 +39,7 @@ jobs:
         pytest login_project --alluredir=allure-results --video=on
 
     - name: Install Allure CLI
+      if: always()
       run: |
         sudo apt update
         sudo apt install -y default-jre unzip
@@ -48,6 +49,7 @@ jobs:
         sudo ln -s /opt/allure/bin/allure /usr/bin/allure
 
     - name: Generate Allure report
+      if: always()
       run: |
         allure generate allure-results -o allure-report --clean
 
