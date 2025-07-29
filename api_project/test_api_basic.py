@@ -58,7 +58,7 @@ def test_get_nonexistent_resource(base_url, headers):
     response = requests.get(f"{base_url}/unknown/999", headers=headers)
     assert response.status_code == 404
 
-@allure.title("Невлидный ключ доступа")
+@allure.title("Невалидный ключ доступа")
 @pytest.mark.xfail(reason="reqres.in может возвращать 200 с некорректным API-ключом")
 def test_with_invalid_api_key(base_url):
     headers = {"x-api-key": "invalid-key"}

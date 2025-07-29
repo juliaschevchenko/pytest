@@ -35,7 +35,8 @@ jobs:
     - name: Run tests
       run: |
         rm -rf allure-results allure-report
-        pytest --alluredir=allure-results
+        pytest api_projrct --alluredir=allure-results
+        pytest login_project --alluredir=allure-results --video=on
 
     - name: Install Allure CLI
       run: |
