@@ -1,3 +1,4 @@
+import os
 import glob
 import pytest
 import allure
@@ -22,20 +23,34 @@ def screenshot_on_failure(page, request):
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    # Добавляем атрибуты в тест для доступа из фикстур
     outcome = yield
     rep = outcome.get_result()
-    setattr(item, "rep_" + rep.when, rep)
-    
-    if rep.failed:
-        # найти видео
-        video_files = glob.glob("test-results/**/video.webm", recursive=True)
-        if video_files:
-            latest_video = video_files[-1]
-            allure.attach.file(latest_video, name="Video", attachment_type=allure.attachment_type.WEBM)
+
+    if rep.when == "call" and rep.failed:
+        page = item.funcargs.get("page", None)
+        if page:
+            screenshot_path = f"allure-results/{item.name}_screenshot.png"
+            page.screenshot(path=screenshot_path, full_page=True)
+            allure.attach.file(screenshot_path, name="screenshot", attachment_type=allure.attachment_type.PNG)
+
+        # Прикрепим видео, если оно есть
+        video_dir = "videos"
+        if os.path.exists(video_dir):
+            for root, _, files in os.walk(video_dir):
+                for file in files:
+                    if file.endswith(".webm") and item.name in file:
+                        video_path = os.path.join(root, file)
+                        allure.attach.file(video_path, name="video", attachment_type=allure.attachment_type.WEBM)
 
  # Для Allure
     if rep.failed and hasattr(item, "allure_attach"):
         import allure
         screenshot_path = Path(f"screenshots/{item.name}.png")
         allure.attach.file(screenshot_path, name="Screenshot", attachment_type=allure.attachment_type.PNG)
+
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    return {
+        **browser_context_args,
+        "record_video_dir": "videos/"
+    }

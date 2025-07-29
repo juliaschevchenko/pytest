@@ -53,6 +53,27 @@ jobs:
       run: |
         allure generate allure-results -o allure-report --clean
 
+    - name: Save Allure report as artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: allure-report
+        path: allure-report
+
+    - name: Save Allure results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: allure-results
+        path: allure-results
+
+    - name: Save video recordings
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: videos
+        path: videos
+
     - name: Deploy Allure report to GitHub Pages
       if: always()
       run: |
