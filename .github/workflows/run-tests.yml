@@ -74,6 +74,13 @@ jobs:
         name: videos
         path: videos
 
+    - name: Save screenshots
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: screenshots
+        path: screenshots
+
     - name: Deploy Allure report to GitHub Pages
       if: always()
       run: |

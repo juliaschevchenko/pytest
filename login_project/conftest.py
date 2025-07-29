@@ -1,25 +1,27 @@
 import os
-import glob
 import pytest
 import allure
 from pathlib import Path
-from playwright.sync_api import sync_playwright
 
-@pytest.fixture(scope="function", autouse=True)
-def page():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context()
-        page = context.new_page()
-        yield page
-        browser.close()
-def screenshot_on_failure(page, request):
-    yield
-    if request.node.rep_call.failed:
-        screenshot_path = Path(f"screenshots/{request.node.name}.png")
-        page.screenshot(path=screenshot_path, full_page=True)
-        if hasattr(request.node, "allure_attach"):
-            request.node.allure_attach(screenshot_path)
+@pytest.fixture(scope="session")
+def browser_context_args():
+    return {
+        "record_video_dir": "videos/",
+        "record_video_size": {"width": 1280, "height": 720}
+    }
+
+@pytest.fixture(scope="function")
+def context(playwright, browser_context_args):
+    browser = playwright.chromium.launch(headless=True)
+    context = browser.new_context(**browser_context_args)
+    yield context
+    context.close()
+    browser.close()
+
+@pytest.fixture(scope="function")
+def page(context):
+    page = context.new_page()
+    yield page
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
@@ -41,16 +43,3 @@ def pytest_runtest_makereport(item, call):
                     if file.endswith(".webm") and item.name in file:
                         video_path = os.path.join(root, file)
                         allure.attach.file(video_path, name="video", attachment_type=allure.attachment_type.WEBM)
-
- # Для Allure
-    if rep.failed and hasattr(item, "allure_attach"):
-        import allure
-        screenshot_path = Path(f"screenshots/{item.name}.png")
-        allure.attach.file(screenshot_path, name="Screenshot", attachment_type=allure.attachment_type.PNG)
-
-@pytest.fixture(scope="session")
-def browser_context_args(browser_context_args):
-    return {
-        **browser_context_args,
-        "record_video_dir": "videos/"
-    }
